@@ -1,36 +1,38 @@
-// Rena funktioner för kassan. Inga sidoeffekter här.
 
+export const findProduct = (products, id) => products.find(product => product.id === id);
 
-//   findProduct(products, id)            -> produkten
- const findProduct = (products, id) => products.find((product) => product.id === id);
+const lineTotal = (line, products) => {
+    const product = findProduct(products, line.productId);
+    return product.price * line.quantity;
+    
+};
 
+export const subTotal = (lines, products) => {
+    return lines.map((line) => lineTotal(line, products))
+    .reduce((sum, total) => sum + total, 0);
+};
 
-//   lineTotal(line, products)            -> pris × antal
- const lineTotal = (line, products) => findProduct(products, line.productId).price * line.quantity;
+const applyDiscount = (amount, code, codes) => {
+    const dicount = codes[code] || 0;
+    return amount * (1 - dicount);
+};
 
-//   subtotal(lines, products)            -> summan av alla rader (reduce)
-const subTotal = (lines, products) => lines.reduce((sum, line) => sum + lineTotal(line, products), 0);
+const vatOf = (amount, rate) => amount - amount / ( 1 + rate);
 
-//   applyDiscount(amount, code, codes)   -> beloppet efter rabatt
- const applyDiscount = (amount, code, codes) => {
-    const rate = codes[code] || 0; // Om ingen kod finns, ge rate = 0
-    return amount * (1 - rate);
-}
+const formatLine = (line, products) => {
+    const product = findProduct(products, line.productId);
+    const sum = lineTotal(line, products);
+    return `${product.name} x${line.quantity} ${sum} kr`;
+};
 
-//   vatOf(amount, rate)  -> momsen i ett belopp som redan innehåller moms
- const vatOf = (amount, rate) =>  amount - amount / (1 + rate);
-
-
- const formatLine = (line, products) => {
-    const { name } = findProduct(products, line.productId);
-    return `${name} x${line.quantity} ${lineTotal(line, products)}kr`;
-}
-
-//   formatReceipt(lines, products, code) -> kvittot som en sträng
-export const formatReceipt = (lines, products, code, codes, vatRate) => {
-    const total = subTotal(lines, products);
-    const discountRow = `Med ${code}-rabbatt ${applyDiscount(total, code, codes)}`
+export const formatReceipt = (lines, products, code, codes, rate) => {
     const rows = lines.map((line) => formatLine(line, products));
-    return [...rows, discountRow, `Totalt: ${total}kr varav moms ${vatOf(total, vatRate).toFixed(2)}kr`]
+    const beforeDiscount = subTotal(lines, products);
+    const total = applyDiscount(beforeDiscount, code, codes);
+    const vat = vatOf(total, rate)
+
+    const totalRow = `Totalt: ${total.toFixed(2)} kr (varav moms ${vat.toFixed(2)} kr)`;
+
+    return [...rows, totalRow];
 }
 

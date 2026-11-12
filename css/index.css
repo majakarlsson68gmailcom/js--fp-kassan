@@ -25,3 +25,12 @@ h1 {
   font-size: 3.2rem;
   margin-bottom: 1.6rem;
 }
+
+.row {
+  list-style: none;
+  padding: 16px 4px;
+  border-bottom: 1px solid rgb(168, 168, 168);
+}
+li:last-child {
+  font-weight: bold;
+}

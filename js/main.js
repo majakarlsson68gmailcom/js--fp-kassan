@@ -1,30 +1,44 @@
-// Kassan
-//import { checkout } from './kassa-imperativ.js';
-import { products, lines, discountCodes, VAT_RATE } from './data.js'
-import { formatReceipt } from "./receipt.js";
-//import { createCart } from './cart.js' // TODO TILL TORSDAG
- 
-// 1. Kör den gamla kassan. Kör den sedan en gång till, med samma rabattkod.
-// TODO: Gissa först. Blir kvittot detsamma båda gångerna? Varför inte?
-//checkout('STUDENT');
-// checkout('STUDENT');
 
-// --- Del A, på passet (15 min) ---
-// TODO: skriv rena funktioner i js/receipt.js och använd dem här i stället för checkout.
-//       Ingen av dem får ändra products eller lines, läsa globala variabler eller logga.
-//
-//   findProduct(products, id)            -> produkten
-//   lineTotal(line, products)            -> pris × antal
-//   subtotal(lines, products)            -> summan av alla rader (reduce)
-//   applyDiscount(amount, code, codes)   -> beloppet efter rabatt
-//   vatOf(amount, rate)                  -> momsen i ett belopp som redan innehåller moms
-//   formatReceipt(lines, products, code) -> kvittot som en sträng
-//
+import { products, lines, discountCodes, VAT_RATE } from './data.js';
+import { formatReceipt } from './receipt.js';
+import { createCart } from "./cart.js"; 
+
+
+const cart = createCart(products);
+
+cart.add("latte", 1);
+cart.add("kaffe", 2);
+cart.add("macka", 1);
+cart.add("macka", 2);
+
+const receipt = formatReceipt(cart.lines(), products, "STUDENT", discountCodes, VAT_RATE);
+console.log(cart);
+
+
+
+
+
+console.log(cart.total());
+
+console.log(cart.lines());
+
 // Det enda stället med sidoeffekter är här i main.js: console.log(formatReceipt(...)).
+// console.log(fromatReceipt(lines, products, "STUDENT", discountCodes, VAT_RATE));
 // Kör två gånger. Blir det samma kvitto nu?
 
 // --- Del B och C, självstudier till torsdagen ---
 // Se README. Ni tar med Kassan till workshoppen och granskar varandras kod.
+const receiptContainer = document.createElement("ul");
+document.querySelector("main").append(receiptContainer);
 
-console.log(formatReceipt(lines, products, 'STUDENT', discountCodes, VAT_RATE));
+
+const renderReceipt = (rows) => {
+    receiptContainer.innerHTML = "";
+    const li = rows.map(row => {
+       return `<li class="row">${row}</li>`
+    }).join("");
+    receiptContainer.innerHTML = li;
+}
+
+renderReceipt(receipt)
 
